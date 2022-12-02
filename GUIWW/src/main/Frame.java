@@ -174,12 +174,11 @@ public class Frame extends JFrame {
 
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				// TODO Auto-generated method stub
 				if (!rowSelector.isSelectionEmpty()) {
 					int selectedRow = rowSelector.getMinSelectionIndex();
-					JOptionPane rowPane = new JOptionPane();
-					int rowOption = rowPane.showConfirmDialog(null, "¿Quieres eliminar el producto?", "Selecciona",
-							JOptionPane.YES_NO_OPTION);
+					//JOptionPane rowPane = new JOptionPane();
+					int rowOption = JOptionPane.showConfirmDialog(null, "¿Quieres eliminar el producto?", "Selecciona",
+							JOptionPane.YES_OPTION);
 					if (rowOption == 0) {
 						deleteProduct(selectedRow);
 					}
