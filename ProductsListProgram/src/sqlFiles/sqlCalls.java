@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +15,8 @@ public class sqlCalls {
 	static Statement stmt;
 	static ResultSet rs = null;
 	static Connection reg;
-
+	static ArrayList<Producto> arrayProductosDB = new ArrayList<Producto>();
+	
 	/**
 	 * sqlQueryCall makes a Query Call to database 'dataBase'
 	 * 
@@ -46,10 +48,11 @@ public class sqlCalls {
 	}
 
 	public static void sqlUpdateProducto(Producto prd) {
-		Connect conn = new Connect();
-		reg = conn.getConnect();
+		Connection reg;
 		try {
-			stmt = reg.createStatement();
+			Connect conn = new Connect();
+			reg = conn.getConnect();
+			stmt = conn.getConnect().createStatement();
 			stmt.executeUpdate("INSERT INTO " + conn.getTableName() + "(Producto, Precio, Tienda) VALUES ('"
 					+ prd.getProducto() + "', " + prd.getPrecio() + ", '" + prd.getTienda() + "')");
 //			System.out.println("INSERT INTO " + conn.getTableName() + "(Producto, Precio, Tienda) VALUES ('"
@@ -59,6 +62,26 @@ public class sqlCalls {
 			System.out.println("Error en subir el producto");
 			e.printStackTrace();
 		}
+	}
+	
+	public static ArrayList<Producto> sqlShowProductos() {
+		try {
+			Connect conn = new Connect();
+			reg = conn.getConnect();
+			stmt = reg.createStatement();
+			rs = stmt.executeQuery("SELECT Producto, Precio, Tienda FROM productos");
+			while(rs.next()) {
+				arrayProductosDB.add(new Producto(rs.getString(1), rs.getDouble(2), rs.getString(3)));
+			}
+			return arrayProductosDB;
+//			System.out.println("INSERT INTO " + conn.getTableName() + "(Producto, Precio, Tienda) VALUES ('"
+//					+ prd.getProducto() + "', " + prd.getPrecio() + ", '" + prd.getTienda() + "')");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error en subir el producto");
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static void sqlInsertCall(Connection con, String dataBase, String Nombre, Integer Ano, String Genero) {

@@ -5,7 +5,10 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import Connect.Connect;
 import main.Producto;
@@ -23,9 +26,12 @@ import java.util.ArrayList;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+
 import java.awt.Font;
 import java.awt.Point;
 import javax.swing.JComboBox;
+import javax.swing.table.DefaultTableModel;
 
 public class MyFrame extends JFrame {
 
@@ -37,9 +43,11 @@ public class MyFrame extends JFrame {
 	private JTextField txtProducto;
 	private JTextField txtPrecio;
 	private JComboBox listaTiendas;
-	private JTable table;
+	private JTable tableProductos;
+	private JScrollPane scrollPane;
 	String [] tiendas = {"Mercadona", "Carrefour", "Consum", "Masymas"};
 	ArrayList<Producto> arrayProductos = new ArrayList<Producto>();
+	ArrayList<Producto> arrayProductosDB = new ArrayList<Producto>();
 	Connect conn;
 	Connection reg;
 	Statement stmt;
@@ -116,6 +124,12 @@ public class MyFrame extends JFrame {
 		panel.add(AnadirProducto);
 		
 		JLabel MostrarProductos = new JLabel("Mostrar");
+		MostrarProductos.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				mostrarDatosConTableModel();
+			}
+		});
 		MostrarProductos.setBounds(122, 232, 63, 33);
 		MostrarProductos.setOpaque(true);
 		MostrarProductos.setHorizontalAlignment(SwingConstants.CENTER);
@@ -166,6 +180,7 @@ public class MyFrame extends JFrame {
 		header.add(panel_1);
 		
 		JLabel panelClose = new JLabel("x");
+		panelClose.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panelClose.setBounds(0, 0, 30, 26);
 		panel_1.add(panelClose);
 		panelClose.addMouseListener(new MouseAdapter() {
@@ -176,16 +191,70 @@ public class MyFrame extends JFrame {
 		});
 		panelClose.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		JScrollPane scrollPane = new JScrollPane();
+		JPanel panel_2 = new JPanel();
+		panel_2.setBounds(539, 0, 30, 26);
+		header.add(panel_2);
+		panel_2.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("-");
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel.setBounds(0, 0, 30, 26);
+		panel_2.add(lblNewLabel);
+		
+		scrollPane = new JScrollPane();
 		scrollPane.setBounds(242, 37, 348, 452);
 		panel.add(scrollPane);
 		
-		table = new JTable();
-		scrollPane.setViewportView(table);
+		
 		
 		listaTiendas = new JComboBox(tiendas);
 		listaTiendas.setBounds(27, 156, 103, 21);
 		panel.add(listaTiendas);
+	}
+	
+	private void mostrarDatosConTableModel() {
+		DefaultTableModel model;
+		model = new DefaultTableModel();// definimos el objeto tableModel
+		tableProductos = new JTable();// creamos la instancia de la tabla
+		tableProductos.setModel(model);
+		model.addColumn("Producto");
+		model.addColumn("Precio");
+		model.addColumn("Tienda");
+
+		tableProductos.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		tableProductos.getTableHeader().setReorderingAllowed(false);
+		
+		arrayProductosDB = sqlCalls.sqlShowProductos();
+		
+		for (int i = 0; i < arrayProductosDB.size(); i++) {
+			model.addRow(new Object[] { arrayProductosDB.get(i).getProducto(), arrayProductosDB.get(i).getPrecio(),
+					arrayProductosDB.get(i).getTienda() });
+		}
+		
+		/*
+		 * enviamos el objeto TableModel, como mandamos el objeto podemos manipularlo
+		 * desde el metodo
+		 */
+		scrollPane.setViewportView(tableProductos);
+		ListSelectionModel rowSelector = tableProductos.getSelectionModel();
+		rowSelector.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				// TODO Auto-generated method stub
+				if (!rowSelector.isSelectionEmpty()) {
+					int selectedRow = rowSelector.getMinSelectionIndex();
+					JOptionPane rowPane = new JOptionPane();
+					int rowOption = JOptionPane.showConfirmDialog(null, "¿Quieres eliminar el producto?", "Selecciona",
+							JOptionPane.YES_NO_OPTION);
+					if (rowOption == 0) {
+						//deleteProduct(selectedRow);
+					}
+					System.out.println(rowOption);
+				}
+			}
+		});
+
 	}
 
 	public static class HeaderDragListener extends MouseAdapter {
