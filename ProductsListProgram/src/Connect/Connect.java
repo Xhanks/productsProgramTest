@@ -12,15 +12,14 @@ public class Connect {
 	public Connect() {
 		conn = null;
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+//			Class.forName("com.mysql.jdbc.Driver");
 //			conn = DriverManager.getConnection("jdbc:mysql://localhost/" + sqlName, sqlUserName, sqlPassword);
 			
-//			Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection(
 			  "jdbc:mysql://eu-central.connect.psdb.cloud/productsprogramdtb?sslMode=VERIFY_IDENTITY",
-			  "8gu68c44vqtegg27bbxq",
-			  "pscale_pw_rzrvz5EHOtdo8aDXoqD7IDogdubKFeoX1d0YnYPALGJ");
-
+			  "2fgwrafrp93yj9u3l52m", 
+			  "pscale_pw_gNYyH00e8Sn1wMg5D1h6mIbDDS4P9uc0BSlmj36hHK4");
 
 			 if(conn != null) System.out.println("Conexión establecida exitosamente");
 		} catch (Exception e) {
@@ -47,7 +46,7 @@ public class Connect {
 //	}
 	
 	public String getTableName() {
-		String table = "productos";
+		String table = "Products";
 		return table;
 	}
 }

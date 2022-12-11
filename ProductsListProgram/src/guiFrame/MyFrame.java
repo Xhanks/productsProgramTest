@@ -30,6 +30,8 @@ import javax.swing.ListSelectionModel;
 
 import java.awt.Font;
 import java.awt.Point;
+
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
 
@@ -43,15 +45,17 @@ public class MyFrame extends JFrame {
 	private JTextField txtProducto;
 	private JTextField txtPrecio;
 	private JComboBox listaTiendas;
-	private JTable tableProductos;
-	private JScrollPane scrollPane;
-	String [] tiendas = {"Mercadona", "Carrefour", "Consum", "Masymas"};
+//	private JTable tableProductos;
+//	private JScrollPane scrollPane;
+	private JPanel panelScrollPane;
+	String[] tiendas = { "Mercadona", "Carrefour", "Consum", "Masymas" };
 	ArrayList<Producto> arrayProductos = new ArrayList<Producto>();
 	ArrayList<Producto> arrayProductosDB = new ArrayList<Producto>();
 	Connect conn;
 	Connection reg;
 	Statement stmt;
 	ResultSet rs = null;
+
 	/**
 	 * Launch the application.
 	 */
@@ -83,22 +87,24 @@ public class MyFrame extends JFrame {
 		setBounds(100, 100, 600, 500);
 		getContentPane().setLayout(null);
 		setUndecorated(true);
-		
+
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 0, 600, 500);
 		getContentPane().add(panel);
 		panel.setLayout(null);
-		
+
 		JLabel AnadirProducto = new JLabel("Añadir");
 		AnadirProducto.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				AnadirProducto.setBackground(new Color(225, 141, 0));
 			}
+
 			@Override
 			public void mouseExited(MouseEvent e) {
 				AnadirProducto.setBackground(Color.ORANGE);
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				String productoAct = txtProducto.getText();
@@ -122,11 +128,13 @@ public class MyFrame extends JFrame {
 		AnadirProducto.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		AnadirProducto.setBackground(Color.ORANGE);
 		panel.add(AnadirProducto);
-		
+
 		JLabel MostrarProductos = new JLabel("Mostrar");
 		MostrarProductos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+//				scrollPane.removeAll();
+//				panelScrollPane.add(mostrarDatosConTableModel());
 				mostrarDatosConTableModel();
 			}
 		});
@@ -136,7 +144,7 @@ public class MyFrame extends JFrame {
 		MostrarProductos.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		MostrarProductos.setBackground(Color.CYAN);
 		panel.add(MostrarProductos);
-		
+
 		txtProducto = new JTextField();
 		txtProducto.addMouseListener(new MouseAdapter() {
 			@Override
@@ -150,7 +158,7 @@ public class MyFrame extends JFrame {
 		txtProducto.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		txtProducto.setColumns(10);
 		panel.add(txtProducto);
-		
+
 		txtPrecio = new JTextField();
 		txtPrecio.addMouseListener(new MouseAdapter() {
 			@Override
@@ -164,7 +172,7 @@ public class MyFrame extends JFrame {
 		txtPrecio.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		txtPrecio.setColumns(10);
 		panel.add(txtPrecio);
-		
+
 		JPanel header = new JPanel();
 		HeaderDragListener headerDragListener = new HeaderDragListener(this);
 		this.addMouseListener(headerDragListener);
@@ -173,12 +181,12 @@ public class MyFrame extends JFrame {
 		header.setLayout(null);
 		header.setBackground(Color.GRAY);
 		panel.add(header);
-		
+
 		JPanel panel_1 = new JPanel();
 		panel_1.setLayout(null);
 		panel_1.setBounds(570, 0, 30, 26);
 		header.add(panel_1);
-		
+
 		JLabel panelClose = new JLabel("x");
 		panelClose.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panelClose.setBounds(0, 0, 30, 26);
@@ -190,33 +198,39 @@ public class MyFrame extends JFrame {
 			}
 		});
 		panelClose.setHorizontalAlignment(SwingConstants.CENTER);
-		
+
 		JPanel panel_2 = new JPanel();
 		panel_2.setBounds(539, 0, 30, 26);
 		header.add(panel_2);
 		panel_2.setLayout(null);
-		
+
 		JLabel lblNewLabel = new JLabel("-");
+
+		MinimizeWindow newMinimizeWindow = new MinimizeWindow(this);
+		this.addMouseListener(newMinimizeWindow);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setBounds(0, 0, 30, 26);
 		panel_2.add(lblNewLabel);
-		
-		scrollPane = new JScrollPane();
-		scrollPane.setBounds(242, 37, 348, 452);
-		panel.add(scrollPane);
-		
-		
-		
+
 		listaTiendas = new JComboBox(tiendas);
 		listaTiendas.setBounds(27, 156, 103, 21);
 		panel.add(listaTiendas);
+		
+		panelScrollPane = new JPanel();
+		panelScrollPane.setBounds(242, 37, 348, 452);
+		panelScrollPane.setBorder(BorderFactory.createLineBorder(Color.black));
+		panel.add(panelScrollPane);
+		
 	}
-	
-	private void mostrarDatosConTableModel() {
+
+	private JScrollPane mostrarDatosConTableModel() {
+		
+		JScrollPane auxScrollPane = new JScrollPane();
+		
 		DefaultTableModel model;
 		model = new DefaultTableModel();// definimos el objeto tableModel
-		tableProductos = new JTable();// creamos la instancia de la tabla
+		JTable tableProductos = new JTable();// creamos la instancia de la tabla
 		tableProductos.setModel(model);
 		model.addColumn("Producto");
 		model.addColumn("Precio");
@@ -224,19 +238,21 @@ public class MyFrame extends JFrame {
 
 		tableProductos.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		tableProductos.getTableHeader().setReorderingAllowed(false);
-		
+
 		arrayProductosDB = sqlCalls.sqlShowProductos();
-		
+
 		for (int i = 0; i < arrayProductosDB.size(); i++) {
 			model.addRow(new Object[] { arrayProductosDB.get(i).getProducto(), arrayProductosDB.get(i).getPrecio(),
 					arrayProductosDB.get(i).getTienda() });
 		}
-		
+
 		/*
 		 * enviamos el objeto TableModel, como mandamos el objeto podemos manipularlo
 		 * desde el metodo
 		 */
-		scrollPane.setViewportView(tableProductos);
+
+//		auxScrollPane.setViewportView(tableProductos);
+		panelScrollPane.add(tableProductos);
 		ListSelectionModel rowSelector = tableProductos.getSelectionModel();
 		rowSelector.addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -248,35 +264,58 @@ public class MyFrame extends JFrame {
 					int rowOption = JOptionPane.showConfirmDialog(null, "¿Quieres eliminar el producto?", "Selecciona",
 							JOptionPane.YES_NO_OPTION);
 					if (rowOption == 0) {
-						//deleteProduct(selectedRow);
+						// deleteProduct(selectedRow);
 					}
 					System.out.println(rowOption);
 				}
 			}
 		});
+		
+		return auxScrollPane;
+	}
 
+	public static void removeAllRows(JTable table) {
+
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+		for (int row = 0; row < table.getRowCount(); row++) {
+			model.removeRow(row);
+		}
+
+	}
+
+	public static class MinimizeWindow extends MouseAdapter {
+		private final JFrame frame;
+
+		public MinimizeWindow(JFrame frame) {
+			this.frame = frame;
+		}
+
+		public void minimizeOnClick(MouseEvent e) {
+			frame.setState(frame.ICONIFIED);
+		}
 	}
 
 	public static class HeaderDragListener extends MouseAdapter {
 
-        private final JFrame frame;
-        private Point mouseDownCompCoords = null;
+		private final JFrame frame;
+		private Point mouseDownCompCoords = null;
 
-        public HeaderDragListener(JFrame frame) {
-            this.frame = frame;
-        }
+		public HeaderDragListener(JFrame frame) {
+			this.frame = frame;
+		}
 
-        public void mouseReleased(MouseEvent e) {
-            mouseDownCompCoords = null;
-        }
+		public void mouseReleased(MouseEvent e) {
+			mouseDownCompCoords = null;
+		}
 
-        public void mousePressed(MouseEvent e) {
-            mouseDownCompCoords = e.getPoint();
-        }
+		public void mousePressed(MouseEvent e) {
+			mouseDownCompCoords = e.getPoint();
+		}
 
-        public void mouseDragged(MouseEvent e) {
-            Point currCoords = e.getLocationOnScreen();
-            frame.setLocation(currCoords.x - mouseDownCompCoords.x, currCoords.y - mouseDownCompCoords.y);
-        }
-    }
+		public void mouseDragged(MouseEvent e) {
+			Point currCoords = e.getLocationOnScreen();
+			frame.setLocation(currCoords.x - mouseDownCompCoords.x, currCoords.y - mouseDownCompCoords.y);
+		}
+	}
 }

@@ -69,7 +69,7 @@ public class sqlCalls {
 			Connect conn = new Connect();
 			reg = conn.getConnect();
 			stmt = reg.createStatement();
-			rs = stmt.executeQuery("SELECT Producto, Precio, Tienda FROM productos");
+			rs = stmt.executeQuery("SELECT Producto, Precio, Tienda FROM " + conn.getTableName());
 			while(rs.next()) {
 				arrayProductosDB.add(new Producto(rs.getString(1), rs.getDouble(2), rs.getString(3)));
 			}
